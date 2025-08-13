@@ -3,7 +3,8 @@ let drawDotsCheckBox;
 let shapeFunction = "rect";
 const gridLength = 15;
 const mid = Math.floor(gridLength/2);
-const dotLength = 18;
+const minDotLength = 12;
+const maxDotLength = 24;
 const boxLength = 60;
 const margin = 30;
 const padding = 16;
@@ -43,14 +44,16 @@ function setup() {
     shapeButton.option('Circles');
     shapeButton.position(940, 130);
     shapeButton.selected('Squares');
+    
+    // slider for dot size
+    dotLengthSlider = createSlider(minDotLength, maxDotLength, minDotLength, 0);
+    dotLengthSlider.position(940, 150);
 
     rectMode(CENTER);
     ellipseMode(CENTER);
-
 }
 
 function drawGrid(){
-    noStroke();
     for (let i = 0; i < gridLength; i++) {
         for (let j = 0; j < gridLength; j++) {
             let fillColour = color(255); // white by default
@@ -69,8 +72,7 @@ function drawGrid(){
 }
 
 function drawDots(){
-    noStroke();
-    
+    let dotLength = dotLengthSlider.value();
     for (let i = 0; i < gridLength; i++) {
         for (let j = 0; j < gridLength; j++) {
             if (dotRowsStart[i] <= j && j <= dotRowsEnd[i]) {
@@ -123,6 +125,7 @@ function drawShape(x, y, size) {
 
 function draw() {
     background(255);
+    noStroke();
     if (shapeButton.value() == "Squares") {
         shapeFunction = "rect";
     } else if (shapeButton.value() == "Circles") {
