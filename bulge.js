@@ -6,9 +6,10 @@ let smallSquareLength = 18;
 let largeSquareLength = 60;
 let margin = 30;
 let padding = 16;
-let maxAlphaGrowth = 16;
+let maxAlphaGrowth = 36;
+let maxAlpha = 255;
 let alphaGrowth = 0;
-let alphaConst = 20;
+let blackNum = 0;
 let dotRowsStart = [15, 6, 4, 3, 2, 2, 1, 1, 1, 2, 2, 3, 4, 6, 15];
 let dotRowsEnd = [15, 8, 10, 11, 12, 12, 13, 13, 13, 12, 12, 11, 10, 8, 15];
 
@@ -23,14 +24,14 @@ function setup() {
     //checkerbox and dots.  if both on, then illusion is formed  
     gridPicker = createColorPicker("black");
     gridPicker.position(940,20);
-    alphaSlider = createSlider(0, maxAlphaGrowth, 0);
+    alphaSlider = createSlider(0, maxAlphaGrowth-10, 0);
     alphaSlider.position(940, 50);
     drawGridCheckBox = createCheckbox("Draw Checkboard ",true);
     drawGridCheckBox.position(940,70);
     drawDotsCheckBox = createCheckbox("Draw Dots ", true);
     drawDotsCheckBox.position(940,90);
-    // randomizeCheckBox = createCheckbox("Randomize Dots ", false);
-    // randomizeCheckBox.position(940,120);
+    invertCheckBox = createCheckbox("Invert ", false);
+    invertCheckBox.position(940,110);
 
     //by default positional information in processing
     //are defined as the position of the top left "corner"
@@ -48,15 +49,11 @@ function drawGrid(){
     for (let i = 0; i < gridLength; i++) {
         for (let j = 0; j < gridLength; j++) {
             let fillColour = color(255);
-            if ((i+j+1)%2 == 1) {
+            if ((!invertCheckBox.checked() && (i+j+1)%2 == 1) || (invertCheckBox.checked() && (i+j+1)%2 == 0)) {
                fillColour = gridPicker.color();
-                let alpha = 255;
-                if (alphaSlider.value() != 0) {
-                    alphaGrowth = maxAlphaGrowth - alphaSlider.value();
-                    let layer = Math.max(Math.abs(mid - i), Math.abs(mid - j));
-                    print(layer, i, j);
-                    alpha = alphaGrowth*layer + alphaConst;
-                }
+                alphaGrowth = alphaSlider.value();
+                let layer = Math.max(Math.abs(mid - i), Math.abs(mid - j));
+                alpha = maxAlpha - alphaGrowth*layer;
                 fillColour.setAlpha(alpha);
             }
             fill(fillColour);
@@ -73,17 +70,13 @@ function drawDots(){
             if (dotRowsStart[i] <= j && j <= dotRowsEnd[i]) {
                 
                 let fillColour = color(255);
-                if ((i+j+1)%2 == 0) {
+                if ((!invertCheckBox.checked() && (i+j+1)%2 == 0) || (invertCheckBox.checked() && (i+j+1)%2 == 1)) {
                     fillColour = gridPicker.color();
-                    let alpha = 255;
-                    if (alphaSlider.value() != 0) {
-                        alphaGrowth = maxAlphaGrowth - alphaSlider.value();
-                        let layer = Math.max(Math.abs(mid - i), Math.abs(mid - j));
-                        print(layer, i, j);
-                        alpha = alphaGrowth*layer + alphaConst;
-                    }
+                    alphaGrowth = alphaSlider.value();
+                    let layer = Math.max(Math.abs(mid - i), Math.abs(mid - j));
+                    alpha = maxAlpha - alphaGrowth*layer;
                     fillColour.setAlpha(alpha);
-                    }
+                }
                 fill(fillColour);
             } else {
                 continue; // boxes with no dots
