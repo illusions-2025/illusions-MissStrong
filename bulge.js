@@ -1,16 +1,19 @@
 let drawGridCheckBox;
 let drawDotsCheckBox;
 let gridLength = 15;
+let mid = Math.floor(gridLength/2);
 let smallSquareLength = 18;
 let largeSquareLength = 60;
 let margin = 30;
 let padding = 16;
+let maxAlphaGrowth = 16;
+let alphaGrowth = 0;
+let alphaConst = 20;
 let dotRowsStart = [15, 6, 4, 3, 2, 2, 1, 1, 1, 2, 2, 3, 4, 6, 15];
 let dotRowsEnd = [15, 8, 10, 11, 12, 12, 13, 13, 13, 12, 12, 11, 10, 8, 15];
 
 //this function is called once at the start of a sketch
 function setup() {
-
 
     //create a drawing surface on to the web page
     canvas = createCanvas(900,900);
@@ -18,16 +21,16 @@ function setup() {
 
     //create the checkbox for drawing 
     //checkerbox and dots.  if both on, then illusion is formed  
-    gridPicker1 = createColorPicker("black");
-    gridPicker1.position(940,20);  
-    gridPicker2 = createColorPicker("white");
-    gridPicker2.position(940,50);  
+    gridPicker = createColorPicker("black");
+    gridPicker.position(940,20);
+    alphaSlider = createSlider(0, maxAlphaGrowth, 0);
+    alphaSlider.position(940, 50);
     drawGridCheckBox = createCheckbox("Draw Checkboard ",true);
-    drawGridCheckBox.position(940,80);
+    drawGridCheckBox.position(940,70);
     drawDotsCheckBox = createCheckbox("Draw Dots ", true);
-    drawDotsCheckBox.position(940,100);
-    randomizeCheckBox = createCheckbox("Randomize Dots ", false);
-    randomizeCheckBox.position(940,120);
+    drawDotsCheckBox.position(940,90);
+    // randomizeCheckBox = createCheckbox("Randomize Dots ", false);
+    // randomizeCheckBox.position(940,120);
 
     //by default positional information in processing
     //are defined as the position of the top left "corner"
@@ -44,12 +47,20 @@ function drawGrid(){
     noStroke();
     for (let i = 0; i < gridLength; i++) {
         for (let j = 0; j < gridLength; j++) {
+            let fillColour = color(255);
             if ((i+j+1)%2 == 1) {
-                fill(gridPicker1.value());
-            } else {
-                fill(gridPicker2.value());
+               fillColour = gridPicker.color();
+                let alpha = 255;
+                if (alphaSlider.value() != 0) {
+                    alphaGrowth = maxAlphaGrowth - alphaSlider.value();
+                    let layer = Math.max(Math.abs(mid - i), Math.abs(mid - j));
+                    print(layer, i, j);
+                    alpha = alphaGrowth*layer + alphaConst;
+                }
+                fillColour.setAlpha(alpha);
             }
-            rect(i*largeSquareLength+margin, j*largeSquareLength+margin, largeSquareLength);
+            fill(fillColour);
+        rect(i*largeSquareLength+margin, j*largeSquareLength+margin, largeSquareLength);
         }
     }
 }
@@ -60,36 +71,42 @@ function drawDots(){
     for (let i = 0; i < gridLength; i++) {
         for (let j = 0; j < gridLength; j++) {
             if (dotRowsStart[i] <= j && j <= dotRowsEnd[i]) {
+                
+                let fillColour = color(255);
                 if ((i+j+1)%2 == 0) {
-                    fill(gridPicker1.value());
-                } else {
-                    fill(gridPicker2.value());
-                }
-                if (randomizeCheckBox.checked()) {
-                    fill(random(255), random(255), random(255));
-                }
+                    fillColour = gridPicker.color();
+                    let alpha = 255;
+                    if (alphaSlider.value() != 0) {
+                        alphaGrowth = maxAlphaGrowth - alphaSlider.value();
+                        let layer = Math.max(Math.abs(mid - i), Math.abs(mid - j));
+                        print(layer, i, j);
+                        alpha = alphaGrowth*layer + alphaConst;
+                    }
+                    fillColour.setAlpha(alpha);
+                    }
+                fill(fillColour);
             } else {
                 continue; // boxes with no dots
-            } if (i == 7 && j == 7) { // ignore center
+            } if (i == mid && j == mid) { // ignore center
                 continue;
-            } if (i == 7) { // middle vertical
-                let up = j < 7 ? 1: -1;
+            } if (i == mid) { // middle vertical
+                let up = j < mid ? 1: -1;
                 rect(i*largeSquareLength+margin+(padding*up), j*largeSquareLength+margin+(padding*up), smallSquareLength);
                 rect(i*largeSquareLength+margin-(padding*up), j*largeSquareLength+margin+(padding*up), smallSquareLength);
-            } if (j == 7) { // middle horizontal
-                let left = i < 7 ? 1: -1;
+            } if (j == mid) { // middle horizontal
+                let left = i < mid ? 1: -1;
                 rect(i*largeSquareLength+margin+(padding*left), j*largeSquareLength+margin-(padding*left), smallSquareLength);
                 rect(i*largeSquareLength+margin+(padding*left), j*largeSquareLength+margin+(padding*left), smallSquareLength);
-            } else if (i < 7 && j < 7) { // upper left quadrant
+            } else if (i < mid && j < mid) { // upper left quadrant
                 rect(i*largeSquareLength+margin-padding, j*largeSquareLength+margin+padding, smallSquareLength);
                 rect(i*largeSquareLength+margin+padding, j*largeSquareLength+margin-padding, smallSquareLength);
-            } else if (i > 7 && j < 7) { // upper right quadrant
+            } else if (i > mid && j < mid) { // upper right quadrant
                 rect(i*largeSquareLength+margin-padding, j*largeSquareLength+margin-padding, smallSquareLength);
                 rect(i*largeSquareLength+margin+padding, j*largeSquareLength+margin+padding, smallSquareLength);
-            } else if (i < 7 && j > 7) { // lower left quadrant
+            } else if (i < mid && j > mid) { // lower left quadrant
                 rect(i*largeSquareLength+margin-padding, j*largeSquareLength+margin-padding, smallSquareLength);
                 rect(i*largeSquareLength+margin+padding, j*largeSquareLength+margin+padding, smallSquareLength);
-            } else if (i > 7 && j > 7) { // lower right quadrant
+            } else if (i > mid && j > mid) { // lower right quadrant
                 rect(i*largeSquareLength+margin-padding, j*largeSquareLength+margin+padding, smallSquareLength);
                 rect(i*largeSquareLength+margin+padding, j*largeSquareLength+margin-padding, smallSquareLength);
             }
@@ -104,7 +121,7 @@ function drawDots(){
 //However, as this code is used for breaking down the illusion, the noLoop() is commented out
 //so that the illusion can be redrawn correctly after user input interaction
 function draw() {
-    frameRate(5);
+    frameRate(1);
     background(255);
     if(drawGridCheckBox.checked()){
         drawGrid();
