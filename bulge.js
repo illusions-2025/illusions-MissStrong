@@ -1,7 +1,7 @@
 let drawGridCheckBox;
 let drawDotsCheckBox;
 let gridLength = 15;
-let smallSquareLength = 16;
+let smallSquareLength = 18;
 let largeSquareLength = 60;
 let margin = 30;
 let padding = 16;
@@ -17,11 +17,17 @@ function setup() {
     canvas.position(20,20);
 
     //create the checkbox for drawing 
-    //checkerbox and dots.  if both on, then illusion is formed    
+    //checkerbox and dots.  if both on, then illusion is formed  
+    gridPicker1 = createColorPicker("black");
+    gridPicker1.position(940,20);  
+    gridPicker2 = createColorPicker("white");
+    gridPicker2.position(940,50);  
     drawGridCheckBox = createCheckbox("Draw Checkboard ",true);
-    drawGridCheckBox.position(920,20);
+    drawGridCheckBox.position(940,80);
     drawDotsCheckBox = createCheckbox("Draw Dots ", true);
-    drawDotsCheckBox.position(920,40);
+    drawDotsCheckBox.position(940,100);
+    randomizeCheckBox = createCheckbox("Randomize Dots ", false);
+    randomizeCheckBox.position(940,120);
 
     //by default positional information in processing
     //are defined as the position of the top left "corner"
@@ -38,7 +44,11 @@ function drawGrid(){
     noStroke();
     for (let i = 0; i < gridLength; i++) {
         for (let j = 0; j < gridLength; j++) {
-            fill(255*((i+j)%2));
+            if ((i+j+1)%2 == 1) {
+                fill(gridPicker1.value());
+            } else {
+                fill(gridPicker2.value());
+            }
             rect(i*largeSquareLength+margin, j*largeSquareLength+margin, largeSquareLength);
         }
     }
@@ -49,9 +59,15 @@ function drawDots(){
     
     for (let i = 0; i < gridLength; i++) {
         for (let j = 0; j < gridLength; j++) {
-            fill(255*((i+j)%2));
             if (dotRowsStart[i] <= j && j <= dotRowsEnd[i]) {
-                fill(255*((i+j+1)%2));
+                if ((i+j+1)%2 == 0) {
+                    fill(gridPicker1.value());
+                } else {
+                    fill(gridPicker2.value());
+                }
+                if (randomizeCheckBox.checked()) {
+                    fill(random(255), random(255), random(255));
+                }
             } else {
                 continue; // boxes with no dots
             } if (i == 7 && j == 7) { // ignore center
@@ -88,6 +104,7 @@ function drawDots(){
 //However, as this code is used for breaking down the illusion, the noLoop() is commented out
 //so that the illusion can be redrawn correctly after user input interaction
 function draw() {
+    frameRate(5);
     background(255);
     if(drawGridCheckBox.checked()){
         drawGrid();
@@ -95,5 +112,4 @@ function draw() {
     if(drawDotsCheckBox.checked()){
         drawDots();
     }
-    //noLoop();
 }
