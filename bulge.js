@@ -1,6 +1,7 @@
 let drawGridCheckBox;
 let drawDotsCheckBox;
 let shapeFunction = "rect";
+let dotLength = 8;
 let alphaGrowth = 255;
 let alphaGrowing = true;
 let dotsGrowing = true;
@@ -56,6 +57,7 @@ function setup() {
     shapeButton = createRadio();
     shapeButton.option('Squares');
     shapeButton.option('Circles');
+    shapeButton.option('Diamonds');
     shapeButton.position(edge, 170);
     shapeButton.selected('Squares');
     
@@ -77,7 +79,6 @@ function drawGrid(){
         for (let j = 0; j < gridLength; j++) {
             let fillColour = color(255); // white by default
             setAlpha();
-            print(alphaGrowth);
             if ((!invertCheckBox.checked() && (i+j+1)%2 == 1) || (invertCheckBox.checked() && (i+j+1)%2 == 0)) {
                 // non-white boxes
                 let layer = Math.max(Math.abs(mid - i), Math.abs(mid - j));
@@ -203,6 +204,8 @@ function drawShape(x, y, size) {
         rect(x, y, size);
     } else if (shapeFunction == "ellipse")  {
         ellipse(x, y, size);
+    } else if (shapeFunction == "quad")  {
+        quad(x-size/2, y, x, y-size/2, x+size/2, y, x, y+size/2);
     }
 }
 
@@ -213,6 +216,8 @@ function draw() {
         shapeFunction = "rect";
     } else if (shapeButton.value() == "Circles") {
         shapeFunction = "ellipse";
+    } else if (shapeButton.value() == "Diamonds") {
+        shapeFunction = "quad";
     }
     
     if (drawGridCheckBox.checked()){
